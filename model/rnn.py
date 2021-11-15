@@ -23,6 +23,10 @@ def concat_tuple(tups, dim=0):
 class RNN(nn.Module):
 
     def __init__(self, cell, dropout=0.0):
+        """
+        Args:
+            cell: recurrent cell used for forward calculation
+        """
         super().__init__()
         self.cell = cell
 
@@ -35,6 +39,8 @@ class RNN(nn.Module):
 
     def forward(self, inputs, init_state=None, return_output=False):
         """
+        Forward over input series.
+
         cell.forward : (input, state) -> (output, state)
         inputs : [length, batch, dim]
         """
@@ -61,7 +67,9 @@ class RNN(nn.Module):
 
         outputs = []
         if not is_packed:
+            ######## Forward over input series ############
             for input in torch.unbind(inputs, dim=0):
+                ######## single time step of RNN ########
                 if self.use_dropout:
                     ## Recurrent Dropout
                     input = input * input_dropout
@@ -76,7 +84,9 @@ class RNN(nn.Module):
                     state = new_state
                 if return_output:
                     outputs.append(output)
+                ######## /single time step of RNN ########
             return torch.stack(outputs) if return_output else None, state
+            ######## /Forward over input series ############
         else:
             # Following implementation at https://github.com/pytorch/pytorch/blob/9e94e464535e768ad3444525aecd78893504811f/aten/src/ATen/native/RNN.cpp#L621
             # Batch sizes is a sequence of decreasing lengths, which are offsets

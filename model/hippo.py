@@ -14,24 +14,24 @@ from model.op import transition
 
 
 """
-The HiPPO_LegT and HiPPO_LegS modules satisfy the HiPPO interface:
+Pseudo code of common HiPPO interface
 
-The forward() method takes an input sequence f of length L to an output sequence c of shape (L, N) where N is the order of the HiPPO operator.
-c[k] can be thought of as representing all of f[:k] via coefficients of a polynomial approximation.
+class HiPPO(ABC):
+    def forward(input_series: Tensor[L,]) -> output_series::Tensor[L, N_order]
+        input_series, a.k.a. `f`
+        output_series, a.k.a. `c`
+        c[k] can be thought of as representing all of f[:k] via coefficients of a polynomial approximation.
 
-The reconstruct() method takes the coefficients and turns each coefficient into a reconstruction of the original input.
-Note that each coefficient c[k] turns into an approximation of the entire input f, so this reconstruction has shape (L, L),
-and the last element of this reconstruction (which has shape (L,)) is the most accurate reconstruction of the original input.
-
-Both of these two methods construct approximations according to different measures, defined in the HiPPO paper.
-The first one is the "Translated Legendre" (which is up to scaling equal to the LMU matrix),
-and the second one is the "Scaled Legendre".
-Each method comprises an exact recurrence c_k = A_k c_{k-1} + B_k f_k, and an exact reconstruction formula based on the corresponding polynomial family.
+    def reconstruct(c: Tensor[L, N_order]) -> f_for_each::Tensor[L, L]
+        coefficient c[k] turns into an approximation of the **entire** input series f.
+        f_for_each[-1] is the most accurate reconstruction of the original input.
 """
 
 class HiPPO_LegT(nn.Module):
     def __init__(self, N, dt=1.0, discretization='bilinear'):
         """
+        Translated Legendre (which is up to scaling equal to the LMU matrix)
+
         N: the order of the HiPPO projection
         dt: discretization step size - should be roughly inverse to the length of the sequence
         """
@@ -74,13 +74,19 @@ class HiPPO_LegT(nn.Module):
 
 
 class HiPPO_LegS(nn.Module):
-    """ Vanilla HiPPO-LegS model (scale invariant instead of time invariant) """
+    """Vanilla HiPPO-LegS model (scale invariant instead of time invariant)
+
+    Scaled Legendre
+    """
     def __init__(self, N, max_length=1024, measure='legs', discretization='bilinear'):
         """
-        max_length: maximum sequence length
+        Args:
+            max_length: maximum sequence length
+            discretization: Name of time-discritization method
         """
         super().__init__()
         self.N = N
+        # (Fixed) Transition Matrix (NDarray)
         A, B = transition(measure, N)
         B = B.squeeze(-1)
         A_stacked = np.empty((max_length, N, N), dtype=A.dtype)
@@ -100,6 +106,7 @@ class HiPPO_LegS(nn.Module):
             else: # ZOH
                 A_stacked[t - 1] = la.expm(A * (math.log(t + 1) - math.log(t)))
                 B_stacked[t - 1] = la.solve_triangular(A, A_stacked[t - 1] @ B - B, lower=True)
+        # NDArray => Tensor
         self.A_stacked = torch.Tensor(A_stacked) # (max_length, N, N)
         self.B_stacked = torch.Tensor(B_stacked) # (max_length, N)
         # print("B_stacked shape", B_stacked.shape)

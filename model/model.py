@@ -14,7 +14,7 @@ class Model(nn.Module):
         input_size,
         output_size,
         output_len=0,
-        cell='lstm',
+        cell:str='lstm',
         cell_args={},
         output_hiddens=[],
         embed_args=None,
@@ -23,6 +23,21 @@ class Model(nn.Module):
         dropout=0.0,
         split=0,
     ):
+        """
+        Args:
+            cell: Type name of RNNCell, which execute single step of recurrent network
+            cell_args: Arguments of RNNCell
+            preprocess: Dictionary of preprocessing config
+
+        [Default]
+        input_size: self.dataset.input_size
+        output_size: self.dataset.output_size
+        output_len: self.dataset.output_len
+        cell: legs
+        cell_args:
+            hidden_size: 256
+        dropout: 0.0
+        """
         super(Model, self).__init__()
 
         # Save arguments needed for forward pass
@@ -64,7 +79,7 @@ class Model(nn.Module):
                     cell_ctor = OrthogonalCell
                 else:
                     assert False, f"cell {cell} not supported"
-
+                # Initialize manual RNN runner with single-step-processing RNNCell 
                 self.rnn = RNN(cell_ctor(**cell_args), dropout=self.dropout)
                 if self.split > 0:
                     self.initial_rnn = RNN(cell_ctor(**cell_args), dropout=self.dropout)
@@ -101,6 +116,7 @@ class Model(nn.Module):
 
         # Apply main RNN
         if self.output_len > 0:
+            # Run over input series
             outputs, _ = self.rnn(inputs, init_state=initial_state, return_output=True)
             # get last output tokens
             outputs = outputs[-self.output_len:,:,:]

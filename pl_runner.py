@@ -3,10 +3,15 @@ import pytorch_lightning as pl
 
 
 def pl_train(cfg, pl_model_class):
+    """
+    Args:
+        pl_model_class: the `RNNTraining`
+    """
     if cfg.seed is not None:
         torch.manual_seed(cfg.seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed(cfg.seed)
+    # cfg.model: Arguments of the `Model`
     model = pl_model_class(cfg.model, cfg.dataset, cfg.train)
     if 'pl' in cfg and 'profile' in cfg.pl and cfg.pl.profile:
         # profiler=pl.profiler.AdvancedProfiler(output_filename=cfg.train.profiler),

@@ -20,6 +20,10 @@ from utils import to_scalar
 class RNNTraining(pl.LightningModule):
 
     def __init__(self, model_args, dataset_cfg, train_args):
+        """
+        Args:
+            model_args: Arguments of the `Model`
+        """
         super().__init__()
         self.save_hyperparameters()
         self.dataset_cfg = dataset_cfg
