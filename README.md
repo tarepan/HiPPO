@@ -34,10 +34,14 @@ Pass in `model.cell=<cell>` to specify the RNN cell. Default model options can b
 
 The following example command lines reproduce experiments in Sections 4.1 and 4.2 for the HiPPO-LegS model. The `model.cell` argument can be changed to any other model defined in `model/` (e.g. `lmu`, `lstm`, `gru`) for different types of RNN cells.
 
-### Permuted MNIST
+#### 3.a Permuted MNIST
 
 ```
-python train.py runner=pl runner.ntrials=5 dataset=mnist dataset.permute=True model.cell=legs model.cell_args.hidden_size=512 train.epochs=50 train.batch_size=100 train.lr=0.001
+python train.py \
+    runner=pl ++runner.ntrials=5 \
+    dataset=mnist ++dataset.permute=True \
+    ++model.cell=legs ++model.cell_args.hidden_size=512 \
+    ++train.epochs=50 ++train.batch_size=100 ++train.lr=0.001 \
 ```
 
 ### CharacterTrajectories

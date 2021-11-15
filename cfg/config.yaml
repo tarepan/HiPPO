@@ -1,8 +1,9 @@
-# @package _global_
 defaults:
   # - model: lstm
+  - _self_
   - dataset: mnist
   - runner: pl
+# Arguments of the `Model`
 model:
   cell: legs
   cell_args:
