@@ -1,23 +1,31 @@
-# HiPPO
+<div align="center">
+
+# HiPPO:  <!-- omit in toc -->
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][notebook]
+[![Paper](http://img.shields.io/badge/paper-arxiv.2005.09409-B31B1B.svg)][paper]  
+
 ![HiPPO Framework](assets/hippo.png "HiPPO Framework")
-> **HiPPO: Recurrent Memory with Optimal Polynomial Projections**\
-> Albert Gu*, Tri Dao*, Stefano Ermon, Atri Rudra, Christopher Ré\
-> Stanford University\
-> Paper: https://arxiv.org/abs/2008.07669
 
+</div>
 
+Clone of official implmentation of HiPPO.  
 
-> **Abstract.** A central problem in learning from sequential data is representing cumulative history in an incremental fashion as more data is processed. We introduce a general framework (HiPPO) for the online compression of continuous signals and discrete time series by projection onto polynomial bases. Given a measure that specifies the importance of each time step in the past, HiPPO produces an optimal solution to a natural online function approximation problem. As special cases, our framework yields a short derivation of the recent Legendre Memory Unit (LMU) from first principles, and generalizes the ubiquitous gating mechanism of recurrent neural networks such as GRUs. This formal framework yields a new memory update mechanism (HiPPO-LegS) that scales through time to remember all history, avoiding priors on the timescale. HiPPO-LegS enjoys the theoretical benefits of timescale robustness, fast updates, and bounded gradients. By incorporating the memory dynamics into recurrent neural networks, HiPPO RNNs can empirically capture complex temporal dependencies. On the benchmark permuted MNIST dataset, HiPPO-LegS sets a new state-of-the-art accuracy of 98.3%. Finally, on a novel trajectory classification task testing robustness to out-of-distribution timescales and missing data, HiPPO-LegS outperforms RNN and neural ODE baselines by 25-40% accuracy.
+## Quick Training
+Jump to ☞ [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)][notebook], then Run. That's all!  
 
-## Setup
+## How to Use
 
-### Requirements
-This repository requires Python 3.7+ and Pytorch 1.4+.
-Other packages are listed in `requirements.txt`
+### 1. Install <!-- omit in toc -->
+```bash
+# pip install "torch>=1.4.0"      # Based on your PyTorch environment
+pip install -r requirements.txt
+```
 
+### 2. Data & Preprocessing <!-- omit in toc -->
+<!-- "Batteries Included" 😉   -->
+<!-- Dataset class transparently downloads ZeroSpeech2019 corpus and preprocesses it for you.   -->
 
-## Experiments
-
+### 3. Training <!-- omit in toc -->
 Launch experiments using `train.py`.
 
 Pass in `dataset=<dataset>` to specify the dataset, whose default options are specified by the Hydra configs in `cfg/`. See for example `cfg/dataset/mnist.yaml`.
@@ -52,7 +60,6 @@ Use `dataset.train_ts=1 dataset.eval_ts=0.5` instead for downsample.
 Note that the model cell is called tlsi (short for "timestamped linear scale invariant") to denote a HiPPO-LegS model that additionally uses the timestamps.
 
 
-
 ### HiPPO-LegS multiplication in C++
 To compile:
 ```
@@ -69,14 +76,17 @@ python tests/test_legs_extension.py
 ```
 
 
-
-## Citation
-If you use this codebase, or otherwise found our work valuable, please cite:
+## Original paper
+[![Paper](http://img.shields.io/badge/paper-arxiv.2008.07669-B31B1B.svg)][paper]  
+<!-- https://arxiv2bibtex.org/?q=2008.07669&format=bibtex -->
 ```
-@article{hippo,
-  title={HiPPO: Recurrent Memory with Optimal Polynomial Projections},
-  author={Albert Gu and Tri Dao and Stefano Ermon and Atri Rudra and Christopher R\'{e}},
-  journal={arXiv preprint arXiv:2008.07669},
-  year={2020}
+@misc{2008.07669,
+Author = {Albert Gu and Tri Dao and Stefano Ermon and Atri Rudra and Christopher Re},
+Title = {HiPPO: Recurrent Memory with Optimal Polynomial Projections},
+Year = {2020},
+Eprint = {arXiv:2008.07669},
 }
 ```
+
+[paper]:https://arxiv.org/abs/2008.07669
+[notebook]:https://colab.research.google.com/github/tarepan/HiPPO/blob/master/HiPPO.ipynb
